@@ -1,0 +1,31 @@
+Gamepad Mapping for ACME GA09 ( X Mode )
+
+Buttons :
+
+3(blue, down)-> 0
+2(yellow, right) -> 1
+4(red, left) -> 2
+1(green, up) -> 3
+
+L1 -> 4
+L2 -> 5
+
+9(left)-> 6
+10(right)-> 7
+L3 -> 8
+R3 -> 9
+
+burst, clear -> used internally by the gamepad
+"acme" -> pops up Steam (undetectable by SFML)
+
+Axis :
+L3 X -> 0
+L3 Y -> 1
+
+L2, R2 -> 2
+
+R3 Y -> 3
+R3 X -> 4
+
+D-Pad X -> 6
+D-Pad Y -> 7
