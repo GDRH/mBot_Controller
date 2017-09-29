@@ -1,4 +1,4 @@
-Gamepad Mapping for ACME GA09 ( X Mode )
+Gamepad Mapping for ACME GA09 ( X-Input Mode )
 
 Buttons :
 

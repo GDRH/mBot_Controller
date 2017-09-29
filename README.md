@@ -23,6 +23,8 @@ For debugging purposes, the controller input is drawn in the main graphical wind
 ## Todo List
 - [x] Main C++ / SFML framework for taking input
 - [x] Debug system / Visual input representation
+- [x] Key mapping for the [ACME GA09 Controller](http://www.acme.eu/en-us/products/gaming-devices/gamepads/acme-ga09-digital-gamepad)
+- [ ] Serial Interface ( namespace with functions for opening a serial connection and sending data )
 - [ ] Function for powering motors on / off
 - [ ] Function for steering ( separately powering motors )
 - [ ] Function for visual feedback ( LED's )
