@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "InputPlotter.h"
+#include "Serial.h"
 
 int main()
 {
@@ -16,6 +17,11 @@ int main()
 
     InputPlotter plotter(0,&ubuntuFont);
 
+    Serial serial;
+    serial.init( "myfile.txt" );
+
+    char temp;
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -28,6 +34,8 @@ int main()
 
                 case sf::Event::JoystickButtonPressed:
                     plotter.update(event.joystickButton, true);
+                    temp = event.joystickButton.button;
+                    serial.sendBytes( &temp, 1 );
                     break;
 
                 case sf::Event::JoystickButtonReleased:

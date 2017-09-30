@@ -36,10 +36,12 @@
 		<Unit filename="button_mapping.txt" />
 		<Unit filename="include/Button.h" />
 		<Unit filename="include/InputPlotter.h" />
+		<Unit filename="include/Serial.h" />
 		<Unit filename="include/Slider.h" />
 		<Unit filename="mBot_Controller.cpp" />
 		<Unit filename="src/Button.cpp" />
 		<Unit filename="src/InputPlotter.cpp" />
+		<Unit filename="src/Serial.cpp" />
 		<Unit filename="src/Slider.cpp" />
 		<Extensions>
 			<code_completion />
