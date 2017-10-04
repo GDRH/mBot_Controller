@@ -4,6 +4,8 @@ User Interface for the mBot project
 # Idea
 A software designed to take user input ( via a standard USB gamepad / controller ) and send it to the mBot robot.
 
+[Demo Video](https://youtu.be/CWrCCmTVtT4)
+
 # Requirements & Implementation
 ## Physical requirements
 * mBot ( robot + serial-stick )
