@@ -1,3 +1,5 @@
+int mesaj;
+
 void setup() {
   Serial.begin(9600);
   pinMode(12, OUTPUT);
@@ -14,16 +16,20 @@ void loop() {
           case 97:
             digitalWrite(13, LOW);
             digitalWrite(12, LOW);
+            Serial.println  (" Received 'a' ");
             break;
           case 98:
             digitalWrite(12, HIGH);
+            Serial.println(" Received 'b' ");
             break;
           case 99:
             digitalWrite(13, HIGH);
+            Serial.println(" Received 'c' ");
             break;
           case 100:
             digitalWrite(12, HIGH);
             digitalWrite(13, HIGH);
+            Serial.println(" Received 'd' ");
             break;
         }
     }
