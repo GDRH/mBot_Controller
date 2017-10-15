@@ -1,0 +1,6 @@
+M2 inapoi : ff 55 06 00 02 0a 0a 01 ff
+M1 inapoi : ff 55 06 00 02 0a 09 ff 00
+M2 stop : ff 55 06 00 02 0a 0a 00 00
+M2 inainte : ff 55 06 00 02 0a 0a ff 00
+M1 stop : ff 55 06 00 02 0a 09 00 00
+M1 inainte : ff 55 06 00 02 0a 09 01 ff
