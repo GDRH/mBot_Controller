@@ -2,13 +2,32 @@
 #include <iostream>
 
 #include "InputPlotter.h"
-#include "Serial.h"
+#include "SerialClass.h"
 
-Serial serial;
+Serial * SP;
 
 void processButtonPress( sf::Event::JoystickButtonEvent joystickButton ){
     char temp = joystickButton.button;
-    serial.sendBytes( &temp, 1 );
+    if ( SP->IsConnected() ){
+        switch( temp ){
+            case 0:
+                SP->WriteData("a",1);
+                break;
+            case 1:
+                SP->WriteData("b",1);
+                break;
+            case 2:
+                SP->WriteData("c",1);
+                break;
+            case 3:
+                SP->WriteData("d",1);
+                break;
+            default:;
+        }
+        std::cout << "Sent data : " << char(temp+'a') << std::endl;
+    }else{
+        std::cout << "Serial Port not connected! Error" << std::endl;
+    }
 }
 
 void processButtonRelease( sf::Event::JoystickButtonEvent joystickButton ){
@@ -32,9 +51,9 @@ int main()
 
     InputPlotter plotter(0,&ubuntuFont);
 
-    serial.init( "myfile.txt" );
-
-    char temp;
+    SP = new Serial("\\\\.\\COM13");    // adjust as needed
+	if (SP->IsConnected())
+		std::cout << "Arduino connected" << std::endl;
 
     while (window.isOpen())
     {
