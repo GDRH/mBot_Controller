@@ -4,6 +4,21 @@
 #include "InputPlotter.h"
 #include "Serial.h"
 
+Serial serial;
+
+void processButtonPress( sf::Event::JoystickButtonEvent joystickButton ){
+    char temp = joystickButton.button;
+    serial.sendBytes( &temp, 1 );
+}
+
+void processButtonRelease( sf::Event::JoystickButtonEvent joystickButton ){
+
+}
+
+void processAxisMove( sf::Event::JoystickMoveEvent joystickButton ){
+
+}
+
 int main()
 {
     sf::RenderWindow window( sf::VideoMode(800, 600), "mBot Controller v0.1" );
@@ -17,7 +32,6 @@ int main()
 
     InputPlotter plotter(0,&ubuntuFont);
 
-    Serial serial;
     serial.init( "myfile.txt" );
 
     char temp;
@@ -33,17 +47,18 @@ int main()
                     break;
 
                 case sf::Event::JoystickButtonPressed:
-                    plotter.update(event.joystickButton, true);
-                    temp = event.joystickButton.button;
-                    serial.sendBytes( &temp, 1 );
+                    plotter.update( event.joystickButton, true );
+                    processButtonPress( event.joystickButton );
                     break;
 
                 case sf::Event::JoystickButtonReleased:
-                    plotter.update(event.joystickButton, false);
+                    plotter.update( event.joystickButton, false );
+                    processButtonRelease( event.joystickButton );
                     break;
 
                 case sf::Event::JoystickMoved:
-                    plotter.update(event.joystickMove);
+                    plotter.update( event.joystickMove );
+                    processAxisMove( event.joystickMove );
                     break;
 
                 default:;
