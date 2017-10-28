@@ -34,6 +34,10 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="button_mapping.txt" />
+		<Unit filename="hid.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="hidapi.h" />
 		<Unit filename="include/Button.h" />
 		<Unit filename="include/InputPlotter.h" />
 		<Unit filename="include/SerialClass.h" />

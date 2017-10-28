@@ -1,56 +1,76 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+#include <wchar.h>
+#include <string.h>
+#include <stdlib.h>
+#include "hidapi.h"
+
+// Headers needed for sleeping.
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <unistd.h>
+#endif
+
+#define MAX_STR 255
+
 #include "InputPlotter.h"
-#include "SerialClass.h"
 
-Serial * SP;
+hid_device *handle; // Device handler for the USB Stick
 
-char bufferM1Go[] = "\xff\x55\x06\x00\x02\x0a\x0a\xff\x00";
-char bufferM2Go[] = "\xff\x55\x06\x00\x02\x0a\x09\x01\xff";
+unsigned char cmd_ff[] = "\x00\x0a\xff\x55\x07\x00\x02\x05\x01\xff\xff\x00";
+    //cmd_ff[0] = 0;  // Default zero
+    //cmd_ff[1] = 10; // Length of command
+    // ff 55 07 00 02 05 01 ff ff 00
 
-char bufferM1Stop[] = { (char)0xff, (char)0x55, (char)0x06, (char)0x00, (char)0x02, (char)0x0a, (char)0x09, (char)0x00, (char)0x00 };
-char bufferM2Stop[] = { (char)0xff, (char)0x55, (char)0x06, (char)0x00, (char)0x02, (char)0x0a, (char)0x0a, (char)0x00, (char)0x00 };
+unsigned char bufferM1Go[]  =  "\x00\x09\xff\x55\x06\x00\x02\x0a\x0a\xff\x00";
+unsigned char bufferM2Go[]  =  "\x00\x09\xff\x55\x06\x00\x02\x0a\x09\x01\xff";
 
-char bufferM1Back[] = "\xff\x55\x06\x00\x02\x0a\x0a\x01\xff";
-char bufferM2Back[] = "\xff\x55\x06\x00\x02\x0a\x09\xff\x00";
+unsigned char bufferM1Stop[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x09\x00\x00";
+unsigned char bufferM2Stop[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x0a\x00\x00";
+
+unsigned char bufferM1Back[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x09\xff\x00";
+unsigned char bufferM2Back[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x0a\x01\xff";
+
+/*
+M2 inapoi :  ff 55 06 00 02 0a 0a 01 ff
+M1 inapoi :  ff 55 06 00 02 0a 09 ff 00
+M2 stop :    ff 55 06 00 02 0a 0a 00 00
+M2 inainte : ff 55 06 00 02 0a 0a ff 00
+M1 stop :    ff 55 06 00 02 0a 09 00 00
+M1 inainte : ff 55 06 00 02 0a 09 01 ff
+*/
 
 void processButtonPress( sf::Event::JoystickButtonEvent joystickButton ){
     char temp = joystickButton.button;
-    if ( SP->IsConnected() ){
-        switch( temp ){
-            case 0:
-                SP->WriteData( bufferM1Go, 9 );
-                SP->WriteData( bufferM2Go, 9 );
-                break;
-            case 1:
-                SP->WriteData( bufferM1Stop, 9 );
-                SP->WriteData( bufferM2Stop, 9 );
-                break;
-            case 2:
-                SP->WriteData( bufferM2Back, 9 );
-                SP->WriteData( bufferM1Back, 9 );
-                break;
-            /*
-            case 3:
-                SP->WriteData("d",1);
-                break;
-            */
-            default:;
-        }
-        std::cout << "Sent data : " << char(temp+'a') << std::endl;
-    }else{
-        std::cout << "Serial Port not connected! Error" << std::endl;
-    }
+    int res;
 
-    /*
-    M2 inapoi : ff 55 06 00 02 0a 0a 01 ff
-    M1 inapoi : ff 55 06 00 02 0a 09 ff 00
-    M2 stop : ff 55 06 00 02 0a 0a 00 00
-    M2 inainte : ff 55 06 00 02 0a 0a ff 00
-    M1 stop : ff 55 06 00 02 0a 09 00 00
-    M1 inainte : ff 55 06 00 02 0a 09 01 ff
-    */
+    switch( temp ){
+        case 0:
+            //Go forward
+            res = hid_write(handle, cmd_ff, 12);// Send command to mBot
+            break;
+        case 1:
+            //Stop
+            res = hid_write(handle, bufferM1Stop, 11);
+            res = hid_write(handle, bufferM2Stop, 11);
+            break;
+        case 2:
+            //Go back
+            res = hid_write(handle, bufferM1Back, 11);
+            res = hid_write(handle, bufferM2Back, 11);
+            break;
+        /* -- AICI SE MAI POT ADAUGA ACTIUNI PENTRU BUTOANE...
+        case 3:
+            break;
+        */
+        default:;
+    }
+    if (res < 0) {
+        printf("Unable to write()\n");
+        printf("Error: %ls\n", hid_error(handle));
+    }
 }
 
 void processButtonRelease( sf::Event::JoystickButtonEvent joystickButton ){
@@ -74,9 +94,37 @@ int main()
 
     InputPlotter plotter(0,&ubuntuFont);
 
-    SP = new Serial("\\\\.\\COM5");    // adjust as needed
-	if (SP->IsConnected())
-		std::cout << "Arduino connected" << std::endl;
+    //////////////////////////HID_API STUFF/////////////////////////////
+    int res;
+    unsigned char buf[256];
+
+    wchar_t wstr[MAX_STR];
+    int i;
+
+    struct hid_device_info *devs, *cur_dev;
+
+    if (hid_init()){
+        printf("Failed to init HID!");
+        return -1;
+    }
+
+    // Open device
+    handle = hid_open(0x0416, 0xffff, NULL);
+    if (!handle) {
+        printf("Unable to open device\n");
+         return 1;
+    } else {
+        printf("Device open\n");
+    }
+
+    // Optional Read the Manufacturer String
+    wstr[0] = 0x0000;
+    res = hid_get_manufacturer_string(handle, wstr, MAX_STR);
+    if (res < 0)
+        printf("Unable to read manufacturer string\n");
+    printf("Manufacturer String: %ls\n", wstr);
+
+    //////////////////////////HID_API STUFF/////////////////////////////
 
     while (window.isOpen())
     {
@@ -111,6 +159,11 @@ int main()
         plotter.draw(window);
         window.display();
     }
+
+    hid_close(handle);
+
+    /* Free static HIDAPI objects. */
+    hid_exit();
 
     return 0;
 }
