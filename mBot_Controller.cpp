@@ -19,7 +19,7 @@
 
 hid_device *handle; // Device handler for the USB Stick
 
-unsigned char cmd_ff[] = "\x00\x0a\xff\x55\x07\x00\x02\x05\x01\xff\xff\x00";
+//unsigned char cmd_ff[] = "\x00\x0a\xff\x55\x07\x00\x02\x05\x01\xff\xff\x00";
     //cmd_ff[0] = 0;  // Default zero
     //cmd_ff[1] = 10; // Length of command
     // ff 55 07 00 02 05 01 ff ff 00
@@ -27,8 +27,19 @@ unsigned char cmd_ff[] = "\x00\x0a\xff\x55\x07\x00\x02\x05\x01\xff\xff\x00";
 unsigned char bufferM1Go[]  =  "\x00\x09\xff\x55\x06\x00\x02\x0a\x0a\xff\x00";
 unsigned char bufferM2Go[]  =  "\x00\x09\xff\x55\x06\x00\x02\x0a\x09\x01\xff";
 
+unsigned char buffFwrd[] = "\x00\x0a\xff\x55\x07\x00\x02\x05\x01\xff\xff\x00";
+unsigned char buffRight[] = "\x00\x0a\xff\x55\x07\x00\x02\x05\x01\xff\x01\xff";
+unsigned char buffLeft[]= "\x00\x0a\xff\x55\x07\x00\x02\x05\xff\x00\xff\x00";
+unsigned char buffBack[]= "\x00\x0a\xff\x55\x07\x00\x02\x05\xff\x00\x01\xff";
+/*ff 55 07 00 02 05 ff 00 01 ff - Inapoi
+
+ff 55 07 00 02 05 01 ff 01 ff - Right
+ff 55 07 00 02 05 ff 00 ff 00 - Left*/
+
 unsigned char bufferM1Stop[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x09\x00\x00";
 unsigned char bufferM2Stop[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x0a\x00\x00";
+
+unsigned char bufStop[] = "\x00\x0a\xff\x55\x07\x00\x02\x05\x00\x00\x00\x00 ";
 
 unsigned char bufferM1Back[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x09\xff\x00";
 unsigned char bufferM2Back[] = "\x00\x09\xff\x55\x06\x00\x02\x0a\x0a\x01\xff";
@@ -49,17 +60,19 @@ void processButtonPress( sf::Event::JoystickButtonEvent joystickButton ){
     switch( temp ){
         case 0:
             //Go forward
-            res = hid_write(handle, cmd_ff, 12);// Send command to mBot
+            res = hid_write(handle, buffFwrd, 12);// Send command to mBot
             break;
         case 1:
-            //Stop
-            res = hid_write(handle, bufferM1Stop, 11);
-            res = hid_write(handle, bufferM2Stop, 11);
+            //Right
+            res = hid_write(handle, buffRight, 12);
             break;
         case 2:
             //Go back
-            res = hid_write(handle, bufferM1Back, 11);
-            res = hid_write(handle, bufferM2Back, 11);
+            res = hid_write(handle, buffBack, 12);
+            break;
+        case 3:
+            //Left
+            res = hid_write(handle, buffLeft, 12);
             break;
         /* -- AICI SE MAI POT ADAUGA ACTIUNI PENTRU BUTOANE...
         case 3:
@@ -74,7 +87,8 @@ void processButtonPress( sf::Event::JoystickButtonEvent joystickButton ){
 }
 
 void processButtonRelease( sf::Event::JoystickButtonEvent joystickButton ){
-
+    int res;
+    res = hid_write(handle, bufStop, 12);
 }
 
 void processAxisMove( sf::Event::JoystickMoveEvent joystickButton ){
@@ -150,7 +164,6 @@ int main()
                     plotter.update( event.joystickMove );
                     processAxisMove( event.joystickMove );
                     break;
-
                 default:;
             }
         }
